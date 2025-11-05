@@ -1,0 +1,21 @@
+{
+  "name": "grafana-mcp-oauth-wrapper",
+  "version": "1.0.0",
+  "description": "OAuth 2.1 wrapper for Grafana MCP server",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.5",
+    "hono": "^4.7.8",
+    "jose": "^6.0.11"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
