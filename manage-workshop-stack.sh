@@ -1,23 +1,24 @@
 #!/bin/bash
-set -e
 
-case $STACK_OPERATION in
-  create)
+STACK_OPERATION=$1
+
+if [[ "$STACK_OPERATION" == "Create" || "$STACK_OPERATION" == "Update" ]]; then
     echo "🎓 Creating Grafana MCP Workshop Environment..."
     
     # Install Node.js 22 LTS
     curl -sL https://rpm.nodesource.com/setup_22.x | sudo bash -
-    sudo yum install -y nodejs jq git docker
+    sudo yum install -y nodejs jq git
     
-    # Start Docker
-    sudo systemctl start docker
-    sudo usermod -a -G docker ec2-user
+    # Install and configure Podman (Docker-compatible)
+    sudo yum install -y podman
+    sudo systemctl start podman
+    sudo systemctl enable podman
     
+    # Create Docker alias for CDK compatibility
+    sudo ln -sf /usr/bin/podman /usr/local/bin/docker
+
     # Install AWS CDK
     sudo npm install -g aws-cdk
-    
-    # Setup workshop directory
-    cd /home/ec2-user/environment
     
     # Install dependencies and build
     npm install
@@ -28,17 +29,13 @@ case $STACK_OPERATION in
     
     # Run complete setup
     ./scripts/complete-setup.sh
-    ;;
-    
-  delete)
+   
+elif [ "$STACK_OPERATION" == "Delete" ]; then
     echo "🧹 Cleaning up workshop..."
     cd /home/ec2-user/environment
     cdk destroy --all --force || true
-    ;;
-    
-  *)
-    echo "Unknown operation: $STACK_OPERATION"
+   
+else
+    echo "Invalid stack operation!"
     exit 1
-    ;;
-esac
-
+fi
