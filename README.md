@@ -1,10 +1,8 @@
-# Grafana MCP Server with Cognito for OAuth 2.1 AuthN/AuthZ
+# Grafana MCP Server with OAuth 2.1 Authentication
 
-This CDK project deploys a secure, production-ready Grafana MCP (Model Context Protocol) server with OAuth 2.1 authentication on AWS. It follows the [AWS Solutions Library guidance for deploying MCP servers](https://github.com/aws-solutions-library-samples/guidance-for-deploying-model-context-protocol-servers-on-aws) and is designed for integration with an Agent / LLM.
+This project deploys a secure [Grafana MCP](https://github.com/grafana/mcp-grafana) (Model Context Protocol) server with OAuth 2.1 authentication on AWS. It follows the [AWS Solutions Library guidance for deploying MCP servers](https://github.com/aws-solutions-library-samples/guidance-for-deploying-model-context-protocol-servers-on-aws) and is designed for integration with an Agent / LLM using streaming HTTP.
 
 ## Architecture Overview
-
-The solution implements a four-stack architecture with the following components:
 
 ### **Security Layer**
 - **AWS Cognito User Pool**: OAuth 2.1 authorization server with MFA support
@@ -30,32 +28,23 @@ The solution implements a four-stack architecture with the following components:
 - Docker installed (for building container images)
 - A Grafana instance with service account token
 
-## Quick Start
+## Deployment
 
-### 1. Install Dependencies
-
+### Quick Start
 ```bash
+# Install dependencies
 npm install
-```
 
-### 2. Bootstrap CDK (if not done before)
-
-```bash
+# Bootstrap CDK (if not done before)
 cdk bootstrap
-```
 
-### 3. Deploy with Required Parameters
-
-#### **Basic Deployment**
-```bash
+# Basic deployment
 cdk deploy --all \
   --context grafanaUrl=https://your-grafana-instance.com \
   --context grafanaApiKey=your-service-account-token \
   --context mcpTransport=http
-```
 
-#### **Advanced Deployment with Existing VPC**
-```bash
+# Advanced deployment with existing VPC
 cdk deploy --all \
   --context existingVpcId=vpc-12345678 \
   --context publicSubnetIds=subnet-12345,subnet-67890 \
