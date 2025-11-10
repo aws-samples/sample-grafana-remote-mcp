@@ -5,6 +5,20 @@ STACK_OPERATION=$1
 if [[ "$STACK_OPERATION" == "Create" || "$STACK_OPERATION" == "Update" ]]; then
     echo "🎓 Creating Grafana MCP Workshop Environment..."
     
+    # Install system dependencies
+    sudo yum install -y jq git
+    
+    # Check Docker and install if needed
+    if ! command -v docker &> /dev/null; then
+        echo "📦 Installing Docker..."
+        sudo yum install -y docker
+        sudo systemctl start docker
+        sudo systemctl enable docker
+        sudo usermod -a -G docker ec2-user
+    else
+        echo "✅ Docker already installed"
+    fi
+    
     # Check Node.js version and install if needed
     if command -v node &> /dev/null; then
         NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
@@ -20,6 +34,9 @@ if [[ "$STACK_OPERATION" == "Create" || "$STACK_OPERATION" == "Update" ]]; then
         curl -sL https://rpm.nodesource.com/setup_22.x | sudo bash -
         sudo yum install -y nodejs
     fi
+    
+    # Install AWS CDK
+    sudo npm install -g aws-cdk
     
     # Run complete setup
     ./scripts/complete-setup.sh

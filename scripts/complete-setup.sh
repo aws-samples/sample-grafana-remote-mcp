@@ -1,17 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "🔧 Installing dependencies..."
+echo "📦 Installing project dependencies..."
+npm install
+npm run build
 
-# Install AWS CDK if not already installed
-if ! command -v cdk &> /dev/null; then
-    echo "📦 Installing AWS CDK..."
-    npm install -g aws-cdk
-fi
-
- # Bootstrap CDK
+echo "🔧 Bootstrapping CDK..."
 cdk bootstrap --require-approval never
-       
+
 echo "📡 Retrieving Grafana configuration from Parameter Store..."
 
 GRAFANA_URL=$(aws ssm get-parameter --name /workshop/grafana-url --query Parameter.Value --output text --region ${AWS_REGION:-us-west-2} 2>/dev/null || echo "")
