@@ -2,6 +2,24 @@
 
 Secure [Grafana MCP](https://github.com/grafana/mcp-grafana) (Model Context Protocol) server with OAuth 2.1 authentication on AWS, enabling AI agents to query Grafana dashboards, metrics, traces, and logs.
 
+This MCP server enables AI agents to interact with Grafana for:
+
+- Querying dashboards and metrics
+- Analyzing traces and logs
+- Investigating incidents
+- Providing intelligent troubleshooting
+
+Works with the [sample-grafana-prometheus-stack](https://github.com/aws-samples/sample-grafana-prometheus-stack) for complete agentic observability demo.
+
+## Security Features
+
+✅ OAuth 2.1 compliant (RFC9728)  
+✅ Multi-layer WAF protection  
+✅ VPC isolation with private subnets  
+✅ Encrypted at rest and in transit  
+✅ Non-root containers  
+✅ Secrets Manager integration  
+
 ## Architecture
 
 ```
@@ -38,14 +56,14 @@ Secure [Grafana MCP](https://github.com/grafana/mcp-grafana) (Model Context Prot
 - **OAuth Wrapper**: JWT token validation and proxying
 - **Grafana MCP Server**: Official MCP server for Grafana integration
 
+## Deployment
+
 ## Prerequisites
 
 - AWS CLI configured
 - AWS CDK installed: `npm install -g aws-cdk`
 - Docker running
-- **Grafana instance with service account token**: Deploy [sample-grafana-prometheus-stack](https://github.com/aws-samples/sample-grafana-prometheus-stack) if needed
-
-## Deployment
+- **Grafana instance url with service account token**: Deploy [sample-grafana-prometheus-stack](https://github.com/aws-samples/sample-grafana-prometheus-stack) to automate generating this stack.
 
 ### Automated Setup
 
@@ -75,17 +93,6 @@ cdk deploy --all \
   --context grafanaApiKey=your-service-account-token
 ```
 
-## Getting Grafana Credentials
-
-### Service Account Token
-In Grafana UI:
-1. Go to **Administration → Service Accounts**
-2. Create service account with **Admin** role
-3. Generate token and copy value
-
-### Grafana URL
-Your publicly accessible Grafana instance URL (e.g., `https://grafana.company.com`)
-
 ## Accessing Your MCP Server
 
 ### Get CloudFront URL
@@ -107,30 +114,19 @@ curl https://your-cloudfront-url/.well-known/oauth-protected-resource
 curl https://your-cloudfront-url/grafana/mcp/
 ```
 
-## Testing
+Run all tests:
 
 ```bash
 node test/test-mcp-server.js
 ```
 
-## Agentic Observability
-
-This MCP server enables AI agents to interact with Grafana for:
-- Querying dashboards and metrics
-- Analyzing traces and logs
-- Investigating incidents
-- Providing intelligent troubleshooting
-
-Works with the [sample-grafana-prometheus-stack](https://github.com/aws-samples/sample-grafana-prometheus-stack) for complete agentic observability.
-
-## Security Features
-
-✅ OAuth 2.1 compliant (RFC9728)  
-✅ Multi-layer WAF protection  
-✅ VPC isolation with private subnets  
-✅ Encrypted at rest and in transit  
-✅ Non-root containers  
-✅ Secrets Manager integration  
+Tests OAuth 2.1 flow and MCP endpoint security:
+1. OAuth discovery endpoint validation
+2. Unauthenticated request rejection (401)
+3. Cognito authorization endpoint
+4. Token endpoint functionality
+5. Mock token validation
+6. MCP endpoint security across all paths
 
 ## Cleanup
 

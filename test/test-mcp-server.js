@@ -4,13 +4,50 @@ const https = require('https');
 const { URL, URLSearchParams } = require('url');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-// Configuration from deployment outputs
-const CLOUDFRONT_URL = 'https://d2xnjagm7hgp3e.cloudfront.net';
-const USER_POOL_ID = 'us-west-2_M6ccVF0gC';
-const CLIENT_ID = '4td2d9um9lhhplci3u5t0ba6bi';
+// Get configuration from CloudFormation stack outputs
+function getStackOutput(stackName, outputKey) {
+  try {
+    const cmd = `aws cloudformation describe-stacks --stack-name ${stackName} --query 'Stacks[0].Outputs[?OutputKey==\`${outputKey}\`].OutputValue' --output text`;
+    return execSync(cmd, { encoding: 'utf8' }).trim();
+  } catch (error) {
+    console.error(`Failed to get ${outputKey} from stack ${stackName}`);
+    return null;
+  }
+}
+
+// Get Cognito domain from User Pool
+function getCognitoDomain(userPoolId) {
+  try {
+    const cmd = `aws cognito-idp describe-user-pool --user-pool-id ${userPoolId} --query 'UserPool.Domain' --output text`;
+    const domain = execSync(cmd, { encoding: 'utf8' }).trim();
+    const region = userPoolId.split('_')[0];
+    return `https://${domain}.auth.${region}.amazoncognito.com`;
+  } catch (error) {
+    console.error('Failed to get Cognito domain');
+    return null;
+  }
+}
+
+console.log('📡 Retrieving deployment configuration from CloudFormation...\n');
+
+const CLOUDFRONT_URL = getStackOutput('MCP-Server', 'CloudFrontDistributions');
+const USER_POOL_ID = getStackOutput('MCP-Security', 'UserPoolId');
+const CLIENT_ID = getStackOutput('MCP-Security', 'UserPoolClientId');
+
+if (!CLOUDFRONT_URL || !USER_POOL_ID || !CLIENT_ID) {
+  console.error('❌ Failed to retrieve deployment configuration. Ensure stacks are deployed.');
+  process.exit(1);
+}
+
+const COGNITO_DOMAIN = getCognitoDomain(USER_POOL_ID);
+if (!COGNITO_DOMAIN) {
+  console.error('❌ Failed to retrieve Cognito domain.');
+  process.exit(1);
+}
+
 const MCP_BASE_PATH = '/grafana/mcp';
-const COGNITO_DOMAIN = 'https://mcp-server-2065-uswest2.auth.us-west-2.amazoncognito.com';
 
 // Load environment variables from .env file if it exists
 let CLIENT_SECRET = null;
