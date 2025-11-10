@@ -3,6 +3,9 @@ set -e
 
 echo "📦 Installing project dependencies..."
 npm install
+cd servers/grafana-mcp-oauth-wrapper && npm install && cd ../..
+
+echo "🔨 Building TypeScript project..."
 npm run build
 
 echo "🔧 Bootstrapping CDK..."
@@ -22,12 +25,6 @@ if [ -z "$GRAFANA_URL" ] || [ -z "$GRAFANA_API_KEY" ]; then
   echo "  /workshop/grafana-api-key"
   exit 1
 fi
-
-echo "📦 Installing npm dependencies..."
-npm install
-
-echo "🔨 Building TypeScript project..."
-npm run build
 
 echo "🚀 Deploying Grafana MCP Server..."
 cdk deploy --all \
