@@ -21,21 +21,7 @@ if [[ "$STACK_OPERATION" == "Create" || "$STACK_OPERATION" == "Update" ]]; then
         sudo yum install -y nodejs
     fi
     
-    # Install and configure Podman (Docker-compatible)
-    if ! command -v podman &> /dev/null; then
-        echo "📦 Installing Podman..."
-        sudo yum install -y podman
-        sudo systemctl start podman
-        sudo systemctl enable podman
-    fi
-    
-    # Create Docker symlink for CDK compatibility
-    if ! command -v docker &> /dev/null; then
-        echo "🔗 Creating Docker symlink to Podman..."
-        sudo ln -sf /usr/bin/podman /usr/local/bin/docker
-    fi
-    
-    # Run complete setup (handles Podman/Docker setup)
+    # Run complete setup
     ./scripts/complete-setup.sh
    
 elif [ "$STACK_OPERATION" == "Delete" ]; then
